@@ -13,14 +13,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up CocoaPods
-      run: |
-        # Install CocoaPods
-        gem install cocoapods
-        
-        # Install dependencies from Podfile
-        pod install
-
     - name: Build and Archive the app
       run: |
         # Clean the build and archive
