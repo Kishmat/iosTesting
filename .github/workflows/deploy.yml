@@ -7,38 +7,37 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7'
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           gem install bundler
-          bundle install
-          pod install --project-directory=./
+          bundle install || true
+          pod install --project-directory=./ || true
 
-      - name: Build app
+      - name: Build and Archive App (Unsigned)
         run: |
           xcodebuild -workspace MachiMart.xcworkspace \
-                      -scheme YourSchemeName \
-                      -sdk iphoneos \
-                      -configuration Release \
-                      clean build
+                     -scheme MachiMart \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     -archivePath build/MachiMart.xcarchive \
+                     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+                     clean archive
 
-      - name: Export .ipa
+      - name: Export .ipa (Unsigned)
         run: |
           xcodebuild -exportArchive \
-                      -archivePath ${{ github.workspace }}/build/YourAppName.xcarchive \
-                      -exportPath ${{ github.workspace }}/build \
-                      -exportOptionsPlist ${{ github.workspace }}/ExportOptions.plist
+                     -archivePath build/MachiMart.xcarchive \
+                     -exportPath build \
+                     -exportOptionsPlist ExportOptions.plist \
+                     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload .ipa
+        uses: actions/upload-artifact@v3
         with:
-          name: YourAppName.ipa
-          path: ${{ github.workspace }}/build/YourAppName.ipa
+          name: MachiMart.ipa
+          path: build/*.ipa
