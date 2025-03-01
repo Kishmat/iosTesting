@@ -15,6 +15,7 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           gem install cocoapods
+          pod repo add gonativeio-gonative-specs https://github.com/gonativeio/gonative-specs.git
           pod install --project-directory=./
 
       - name: Install Dependencies
