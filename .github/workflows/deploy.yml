@@ -1,51 +1,41 @@
-name: Build iOS App
+name: iOS Build and Archive
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Install CocoaPods Dependencies
-        run: |
-          gem install cocoapods
-          # git config --global url."https://$GITHUB_ACTOR:$GH_TOKEN@github.com".insteadOf "https://github.com"
-          # pod repo add gonativeio-gonative-specs https://github.com/gonativeio/gonative-specs.git
-          # pod install --project-directory=./
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    - name: Set up CocoaPods
+      run: |
+        # Install CocoaPods
+        gem install cocoapods
+        
+        # Install dependencies from Podfile
+        pod install
 
-      - name: Install Dependencies
-        run: |
-          gem install bundler
-          bundle install || true
+    - name: Build and Archive the app
+      run: |
+        # Clean the build and archive
+        xcodebuild -workspace MachiMart.xcworkspace \
+                   -scheme MachiMart \
+                   -sdk iphoneos \
+                   -configuration Release \
+                   -archivePath build/MachiMart.xcarchive \
+                   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+                   clean archive
 
-      - name: Build and Archive App (Unsigned)
-        run: |
-          xcodebuild -workspace MachiMart.xcworkspace \
-                     -scheme MachiMart \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     -archivePath build/MachiMart.xcarchive \
-                     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
-                     clean archive
-
-      - name: Export .ipa (Unsigned)
-        run: |
-          xcodebuild -exportArchive \
-                     -archivePath build/MachiMart.xcarchive \
-                     -exportPath build \
-                     -exportOptionsPlist ExportOptions.plist \
-                     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
-
-      - name: Upload .ipa
-        uses: actions/upload-artifact@v4
-        with:
-          name: MachiMart.ipa
-          path: build/*.ipa
+    - name: Export .ipa
+      run: |
+        # Export the IPA from the archived build
+        xcodebuild -exportArchive \
+                   -archivePath build/MachiMart.xcarchive \
+                   -exportPath build/ipa \
+                   -exportOptionsPlist ExportOptions.plist
