@@ -15,9 +15,9 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           gem install cocoapods
-          git config --global url."https://$GITHUB_ACTOR:$GH_TOKEN@github.com".insteadOf "https://github.com"
+          # git config --global url."https://$GITHUB_ACTOR:$GH_TOKEN@github.com".insteadOf "https://github.com"
           # pod repo add gonativeio-gonative-specs https://github.com/gonativeio/gonative-specs.git
-          pod install --project-directory=./
+          # pod install --project-directory=./
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
