@@ -12,11 +12,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          pod install --project-directory=./
+
       - name: Install Dependencies
         run: |
           gem install bundler
           bundle install || true
-          pod install --project-directory=./ || true
 
       - name: Build and Archive App (Unsigned)
         run: |
@@ -37,7 +41,7 @@ jobs:
                      CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
       - name: Upload .ipa
-        uses: actions/upload-artifact@v4  # ✅ Updated to v4
+        uses: actions/upload-artifact@v4
         with:
           name: MachiMart.ipa
           path: build/*.ipa
